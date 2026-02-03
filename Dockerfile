@@ -35,7 +35,14 @@ RUN set -eux; \
 RUN pnpm install --no-frozen-lockfile
 RUN pnpm build
 ENV OPENCLAW_PREFER_PNPM=1
-RUN pnpm ui:install && pnpm ui:build
+
+# Build UI with verification
+RUN pnpm ui:install && pnpm ui:build && \
+    echo "=== Verifying UI build ===" && \
+    (ls -la /openclaw/ui/dist/index.html || \
+     ls -la /openclaw/packages/ui/dist/index.html || \
+     (echo "ERROR: UI assets not found after build!" && find /openclaw -name "index.html" -type f && exit 1)) && \
+    echo "=== UI build verified ==="
 
 
 # Runtime image
